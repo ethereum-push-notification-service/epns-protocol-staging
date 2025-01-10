@@ -169,12 +169,10 @@ contract PushStaking is Initializable, PushStakingStorage {
                 revert Errors.InvalidArg_MoreThanExpected(currentShares, sharesToBeAllocated);
             }
             uint256 sharesToBeRemoved = currentShares - sharesToBeAllocated;
-            walletShareInfo[_walletAddress].walletShare = sharesToBeAllocated;
-            walletShareInfo[_walletAddress].epochToWalletShares[currentEpoch] = sharesToBeAllocated;
 
-            walletShareInfo[FOUNDATION].walletShare += sharesToBeRemoved;
-            walletShareInfo[FOUNDATION].epochToWalletShares[currentEpoch] += sharesToBeRemoved;
-
+            _adjustWalletAndTotalStake(_walletAddress, 0, sharesToBeRemoved);
+            _adjustWalletAndTotalStake(FOUNDATION, sharesToBeRemoved, 0);
+            
             emit SharesDecreased(_walletAddress, currentShares, sharesToBeAllocated);
        }
 

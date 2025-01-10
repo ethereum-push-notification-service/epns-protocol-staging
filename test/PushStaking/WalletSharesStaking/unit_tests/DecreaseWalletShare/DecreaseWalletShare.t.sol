@@ -105,11 +105,11 @@ contract DecreaseWalletShareTest is BaseWalletSharesStaking {
         pushStaking.addWalletShare(actor.bob_channel_owner, percentAllocationFifty);
         pushStaking.addWalletShare(actor.charlie_channel_owner, percentAllocationFifty);
 
+        uint256 epochToTotalSharesBefore = pushStaking.epochToTotalShares(getCurrentEpoch());
         roll(epochDuration * 2);
         addPool(1000);
 
         uint256 walletTotalSharesBefore = pushStaking.WALLET_TOTAL_SHARES();
-        uint256 epochToTotalSharesBefore = pushStaking.epochToTotalShares(getCurrentEpoch());
         (uint256 charlieWalletSharesBefore, , uint256 charlieClaimedBlockBefore) = pushStaking.walletShareInfo(actor.charlie_channel_owner);
         (uint256 bobWalletSharesBefore, ,) = pushStaking.walletShareInfo(actor.bob_channel_owner);
         (uint256 foundationWalletSharesBefore, , ) = pushStaking.walletShareInfo(actor.admin);
@@ -127,12 +127,12 @@ contract DecreaseWalletShareTest is BaseWalletSharesStaking {
         (uint256 bobWalletSharesAfter, ,) = pushStaking.walletShareInfo(actor.bob_channel_owner);
         (uint256 foundationWalletSharesAfter, , ) = pushStaking.walletShareInfo(actor.admin);
          
-        assertEq(charlieWalletSharesAfter, expectedCharlieShares);
+        assertEq(charlieWalletSharesAfter, expectedCharlieShares,"Charlie");
         assertEq(bobWalletSharesBefore, bobWalletSharesAfter,"bob shares");
         assertEq(expectedCharlieShares, pushStaking.getEpochToWalletShare(actor.charlie_channel_owner,2),"E2TW");
-        assertEq(walletTotalSharesBefore, walletTotalSharesAfter);
-        assertEq(epochToTotalSharesBefore, epochToTotalSharesAfter);
-        assertEq(foundationWalletSharesAfter, foundationWalletSharesBefore + (charlieWalletSharesBefore - charlieWalletSharesAfter));
+        assertEq(walletTotalSharesBefore, walletTotalSharesAfter,"Total");
+        assertEq(epochToTotalSharesBefore, epochToTotalSharesAfter,"EtT");
+        assertEq(foundationWalletSharesAfter, foundationWalletSharesBefore + (charlieWalletSharesBefore - charlieWalletSharesAfter),"Combine");
         assertEq(charlieClaimedBlockAfter, charlieClaimedBlockBefore,"charlie claimed block");
     }
 
@@ -149,17 +149,17 @@ contract DecreaseWalletShareTest is BaseWalletSharesStaking {
         pushStaking.addWalletShare(actor.charlie_channel_owner, percentAllocation30);
         pushStaking.addWalletShare(actor.bob_channel_owner, percentAllocation20);
 
+        uint256 epochToTotalSharesBefore = pushStaking.epochToTotalShares(getCurrentEpoch());
         roll(epochDuration * 2);
         addPool(1000);
 
         uint256 walletTotalSharesBefore = pushStaking.WALLET_TOTAL_SHARES();
-        uint256 epochToTotalSharesBefore = pushStaking.epochToTotalShares(getCurrentEpoch());
         (uint256 charlieWalletSharesBefore, ,) = pushStaking.walletShareInfo(actor.charlie_channel_owner);
         (uint256 bobWalletSharesBefore, ,) = pushStaking.walletShareInfo(actor.bob_channel_owner);
         (uint256 aliceWalletSharesBefore, ,) = pushStaking.walletShareInfo(actor.alice_channel_owner);
         (uint256 foundationWalletSharesBefore, , ) = pushStaking.walletShareInfo(actor.admin);
 
-        // Decrease wallet shares of charlie from 50 to 40%
+        // Decrease wallet shares of charlie from 20 to 10%
         GenericTypes.Percentage memory newPercentAllocation = GenericTypes.Percentage({ percentageNumber: 10, decimalPlaces: 0 });
         uint256 expectedBobShares = (newPercentAllocation.percentageNumber * walletTotalSharesBefore) / 100;
         vm.expectEmit(true,true, false, true);
