@@ -90,7 +90,7 @@ library CommTypes {
 
 library StakingTypes {
     /// @dev: Stores all user's staking details
-    struct UserFessInfo {
+    struct UserFeesInfo {
         ///@notice Total amount staked by a user at any given time
         uint256 stakedAmount;
         ///@notice weight of PUSH tokens staked by user
@@ -101,6 +101,17 @@ library StakingTypes {
         uint256 lastClaimedBlock;
         ///@notice Weight of staked amount of a user w.r.t total staked in a single epoch
         mapping(uint256 => uint256) epochToUserStakedWeight;
+    }
+
+    struct WalletShareInfo {
+        ///@notice Total amount staked by a user at any given time
+        uint256 walletShare;
+        ///@notice The last block when user staked
+        uint256 lastStakedBlock;
+        ///@notice The last block when user claimed rewards
+        uint256 lastClaimedBlock;
+        ///@notice Weight of staked amount of a user w.r.t total staked in a single epoch
+        mapping(uint256 => uint256) epochToWalletShares;
     }
 }
 

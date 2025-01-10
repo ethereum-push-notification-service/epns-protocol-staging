@@ -6,12 +6,12 @@ updateChannelState.t.sol
     ├── when caller's chanel is INACTIVE or BLOCKED
     │   └── it REVERT - Core_InvalidChannel()
     └── when caller's channel is in DEACTIVATED STATE
-        └── Enter the REACTIVATION Phase
+        └── it Enter the REACTIVATION Phase
             ├── when token _amount is less than ADD_CHANNEL_MIN_FEES
-            │   └── REVERT - InvalidArg_LessThanExpected()
+            │   └── it REVERT - InvalidArg_LessThanExpected()
             └── when token _amount is accurate
-                ├── Transfer tokens from Caller to Core Contract
-                ├── Calculate and Update CHANNEL_POOL_FUNDS and PROTOCOL_POOL_FEES
-                ├── Update Channe's New Weight, Pool Contribution and Channe's State to 1 (ACTIVE STATE)
-                └── Emit ChannelStateUpdate(caller, 0, _amount)
+                ├── it Transfer tokens from Caller to Core Contract
+                ├──it Calculate and Update CHANNEL_POOL_FUNDS and PROTOCOL_POOL_FEES
+                ├──it Update Channe's New Weight, Pool Contribution and Channe's State to 1 (ACTIVE STATE)
+                └── it Emit ChannelStateUpdate(caller, 0, _amount)
     

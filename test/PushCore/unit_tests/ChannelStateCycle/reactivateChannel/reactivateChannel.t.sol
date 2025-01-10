@@ -2,6 +2,7 @@ pragma solidity ^0.8.20;
 
 import { BasePushCoreTest } from "../../BasePushCoreTest.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract ReactivateChannel_Test is BasePushCoreTest {
     function setUp() public virtual override {
@@ -96,25 +97,26 @@ contract ReactivateChannel_Test is BasePushCoreTest {
 
     function test_FundsVariablesUpdation_PostReactivation() public whenNotPaused {
         approveTokens(actor.bob_channel_owner, address(coreProxy), ADD_CHANNEL_MIN_FEES);
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
 
         vm.startPrank(actor.bob_channel_owner);
         coreProxy.updateChannelState(0);
 
         coreProxy.updateChannelState(ADD_CHANNEL_MIN_FEES);
         uint256 actualChannelFundsAfterReactivation = coreProxy.CHANNEL_POOL_FUNDS();
-        uint256 actualPoolFeesAfterReactivation = coreProxy.PROTOCOL_POOL_FEES();
         uint256 actualChannelWeightAfterReactivation = _getChannelWeight(actor.bob_channel_owner);
         uint256 actualChannelPoolContributionAfterReactivation = _getChannelPoolContribution(actor.bob_channel_owner);
 
         uint256 expectedChannelFundsAfterReactivation = ADD_CHANNEL_MIN_FEES - FEE_AMOUNT + MIN_POOL_CONTRIBUTION;
-        uint256 expectedPoolFeesAfterReactivation = FEE_AMOUNT * 2;
         uint256 expectedChannelPoolContributionAfterReactivation =
             MIN_POOL_CONTRIBUTION + ADD_CHANNEL_MIN_FEES - FEE_AMOUNT;
         uint256 expectedChannelWeightAfterReactivation =
             (expectedChannelPoolContributionAfterReactivation * ADJUST_FOR_FLOAT) / (MIN_POOL_CONTRIBUTION);
 
         assertEq(actualChannelFundsAfterReactivation, expectedChannelFundsAfterReactivation);
-        assertEq(actualPoolFeesAfterReactivation, expectedPoolFeesAfterReactivation);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(FEE_AMOUNT , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + FEE_AMOUNT - BaseHelper.calcPercentage(FEE_AMOUNT , HOLDER_SPLIT));
         assertEq(actualChannelWeightAfterReactivation, expectedChannelWeightAfterReactivation);
         assertEq(actualChannelPoolContributionAfterReactivation, expectedChannelPoolContributionAfterReactivation);
 

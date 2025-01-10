@@ -1,12 +1,12 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import { BaseFuzzStaking } from "../BaseFuzzStaking.f.sol";
+import { BasePushTokenStaking } from "../../BasePushTokenStaking.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
 
-contract Unstaking_test is BaseFuzzStaking {
+contract Unstaking_test is BasePushTokenStaking {
     function setUp() public virtual override {
-        BaseFuzzStaking.setUp();
+        BasePushTokenStaking.setUp();
     }
 
     //  Unstaking allows users to Claim their pending rewards
@@ -22,7 +22,7 @@ contract Unstaking_test is BaseFuzzStaking {
         roll(epochDuration * _passEpoch);
 
         unstake(actor.bob_channel_owner);
-        assertEq(coreProxy.usersRewardsClaimed(actor.bob_channel_owner) > 0, true);
+        assertEq(pushStaking.usersRewardsClaimed(actor.bob_channel_owner) > 0, true);
     }
 
     //Users cannot claim rewards after unstaking
@@ -55,7 +55,7 @@ contract Unstaking_test is BaseFuzzStaking {
         stake(actor.bob_channel_owner, _amount);
         roll(epochDuration * _passEpoch);
         unstake(actor.bob_channel_owner);
-        uint256 rewards = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewards = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         uint256 expectedAmount = rewards + balanceBefore;
         assertEq(expectedAmount, pushToken.balanceOf(actor.bob_channel_owner));
     }
@@ -76,7 +76,7 @@ contract Unstaking_test is BaseFuzzStaking {
         unstake(actor.bob_channel_owner);
         roll(epochDuration * _passEpoch);
         unstake(actor.bob_channel_owner);
-        uint256 rewards = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewards = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         uint256 expectedAmount = rewards + balanceBefore;
         assertEq(expectedAmount, pushToken.balanceOf(actor.bob_channel_owner));
     }

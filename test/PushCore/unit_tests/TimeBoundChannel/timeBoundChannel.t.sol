@@ -109,22 +109,22 @@ contract TimeBoundChannel_Test is BasePushCoreTest {
         uint256 poolContributionBeforeDestroyed = _getChannelPoolContribution(actor.bob_channel_owner);
         uint256 channelsCountBeforeDestroyed = coreProxy.channelsCount();
         uint256 channelPoolFundsBeforeDestroyed = coreProxy.CHANNEL_POOL_FUNDS();
-        uint256 protocolPoolFeesBeforeDestroyed = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
 
         vm.prank(actor.bob_channel_owner);
         coreProxy.updateChannelState(0);
 
         uint256 actualChannelsCountAfterDestroyed = coreProxy.channelsCount();
         uint256 actualChannelPoolFundsAfterDestroyed = coreProxy.CHANNEL_POOL_FUNDS();
-        uint256 actualProtocolPoolFeesAfterDestroyed = coreProxy.PROTOCOL_POOL_FEES();
         uint256 expectedChannelsCountAfterDestroyed = channelsCountBeforeDestroyed - 1;
         uint256 expectedChannelPoolFundsAfterDestroyed =
             channelPoolFundsBeforeDestroyed - poolContributionBeforeDestroyed;
-        uint256 expectedProtocolPoolFeesAfterDestroyed = protocolPoolFeesBeforeDestroyed;
 
         assertEq(expectedChannelsCountAfterDestroyed, actualChannelsCountAfterDestroyed);
         assertEq(expectedChannelPoolFundsAfterDestroyed, actualChannelPoolFundsAfterDestroyed);
-        assertEq(expectedProtocolPoolFeesAfterDestroyed, actualProtocolPoolFeesAfterDestroyed);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL);
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL);
     }
 
     function test_ShouldRefundAfterDestroyedByOwner() public whenNotPaused {

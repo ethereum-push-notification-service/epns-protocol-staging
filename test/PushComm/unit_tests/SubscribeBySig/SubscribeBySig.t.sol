@@ -166,8 +166,7 @@ contract SubscribeBySig_Test is BasePushCommTest {
     function test_WhenUsersUnsubscribeWith712Sig() public {
         //Alice subscribes to bob's channel to check the unsubscribe function
         changePrank(actor.alice_channel_owner);
-        bool res = commProxy.subscribe(actor.bob_channel_owner);
-        assertEq(res, true);
+        commProxy.subscribe(actor.bob_channel_owner);
 
         bytes32 DOMAIN_SEPARATOR = getDomainSeparator();
         SubscribeUnsubscribe memory _subscribeUnsubscribe = SubscribeUnsubscribe(

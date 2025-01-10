@@ -22,7 +22,7 @@ contract PushCommStorageV2 {
      */
     address public governance;
     address public pushChannelAdmin;
-    uint256 public chainID;
+    uint256 public chainID; //Unused Variable
     uint256 public usersCount;
     bool public isMigrationComplete;
     address public PushCoreAddress;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.20;
-
+import { GenericTypes } from "contracts/libraries/DataTypes.sol";
 abstract contract Constants {
     // General Constant Values of All Contracts
     uint256 internal constant DEC_27_2021 = 1_640_605_391;
@@ -19,6 +19,14 @@ abstract contract Constants {
     uint256 public lastTotalStakeEpochInitialized = 0;
     uint256 public totalStakedAmount = 0 ether;
     uint256 public previouslySetEpochRewards = 0 ether;
+
+    uint256 ADD_CHANNEL_MIN_FEES = 50 ether;
+    uint256 ADD_CHANNEL_MAX_POOL_CONTRIBUTION = 250 ether;
+    uint256 FEE_AMOUNT = 10 ether;
+    uint256 MIN_POOL_CONTRIBUTION = 1 ether;
+    uint256 ADJUST_FOR_FLOAT = 10 ** 7;
+    GenericTypes.Percentage HOLDER_SPLIT = GenericTypes.Percentage({ percentageNumber: 55, decimalPlaces: 1 });
+    uint256 WALLET_TOTAL_SHARES = 100_000 * 1e18;
 
     //Comm Constants used for meta transaction
     string public constant name = "Push COMM V1";

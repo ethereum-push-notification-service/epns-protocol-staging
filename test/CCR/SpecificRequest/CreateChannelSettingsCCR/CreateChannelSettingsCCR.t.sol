@@ -113,7 +113,8 @@ contract CreateChannelSettingsCCR is BaseCCRTest {
 
     function test_whenReceiveChecksPass() public whenReceiveFunctionIsCalledInCore {
 
-        uint256 PROTOCOL_POOL_FEES = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         changePrank(DestChain.WORMHOLE_RELAYER_DEST);
 
         string memory notifSettingRes = string(abi.encodePacked(Strings.toString(notifOptions), "+", notifSettings));
@@ -125,8 +126,9 @@ contract CreateChannelSettingsCCR is BaseCCRTest {
             requestPayload, additionalVaas, sourceAddress, SourceChain.SourceChainId, deliveryHash
         );
         // Update states based on Fee Percentage calculation
-        assertEq(coreProxy.PROTOCOL_POOL_FEES(), PROTOCOL_POOL_FEES + amount);
-    }
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(amount , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + amount - BaseHelper.calcPercentage(amount , HOLDER_SPLIT));            
+}
 
     function test_whenTokensAreTransferred() external {
         vm.recordLogs();

@@ -2,6 +2,7 @@ pragma solidity ^0.8.20;
 
 import { BasePushCoreTest } from "../BasePushCoreTest.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract UpdateChannelMeta_Test is BasePushCoreTest {
     function setUp() public virtual override {
@@ -120,16 +121,17 @@ contract UpdateChannelMeta_Test is BasePushCoreTest {
         _createChannel(actor.bob_channel_owner);
 
         uint256 _amountBeingTransferred = ADD_CHANNEL_MIN_FEES;
-        uint256 poolFeesBeforeUpdate = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         uint256 channelPoolFundsBeforeUpdate = coreProxy.CHANNEL_POOL_FUNDS();
 
         vm.prank(actor.bob_channel_owner);
         coreProxy.updateChannelMeta( _testChannelUpdatedIdentity, _amountBeingTransferred);
 
-        uint256 expectedProtocolPoolFees = poolFeesBeforeUpdate + _amountBeingTransferred;
         uint256 expectedChannelPoolFunds = channelPoolFundsBeforeUpdate;
 
-        assertEq(coreProxy.PROTOCOL_POOL_FEES(), expectedProtocolPoolFees);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(_amountBeingTransferred , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + _amountBeingTransferred - BaseHelper.calcPercentage(_amountBeingTransferred , HOLDER_SPLIT));
         assertEq(coreProxy.CHANNEL_POOL_FUNDS(), expectedChannelPoolFunds);
     }
 

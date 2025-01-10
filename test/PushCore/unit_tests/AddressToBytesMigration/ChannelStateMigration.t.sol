@@ -7,6 +7,7 @@ import { PushCoreMock } from "contracts/mocks/PushCoreMock.sol";
 import { console } from "forge-std/console.sol";
 import { PushCoreV3 } from "contracts/PushCore/PushCoreV3.sol";
 import { EPNSCoreProxy, ITransparentUpgradeableProxy } from "contracts/PushCore/EPNSCoreProxy.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract StateMigration_Test is BasePushCoreTest {
     PushCoreMock public coreV2;
@@ -30,6 +31,12 @@ contract StateMigration_Test is BasePushCoreTest {
             0
         );
         coreV2 = PushCoreMock(address(epnsCoreProxyV2));
+        
+        changePrank(actor.admin);
+        coreV2.setPushCommunicatorAddress(address(commEthProxy));
+        coreV2.updateStakingAddress(address(pushStaking));
+        coreV2.splitFeePool(HOLDER_SPLIT);
+
         changePrank(tokenDistributor);
         pushToken.transfer(address(coreV2), 1 ether);
 
@@ -44,6 +51,9 @@ contract StateMigration_Test is BasePushCoreTest {
     }
 
     function test_ProtocolPoolFees_IsCorrect_ForMultipleChannelsCreation() public {
+        uint256 HOLDER_FEE_POOL = coreV2.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreV2.WALLET_FEE_POOL();
+
         changePrank(actor.bob_channel_owner);
         coreV2.createChannelWithPUSH(
             CoreTypes.ChannelType.InterestBearingOpen, _testChannelIdentity, ADD_CHANNEL_MIN_FEES, 0
@@ -56,7 +66,9 @@ contract StateMigration_Test is BasePushCoreTest {
         uint256 expectedProtocolPoolFees = FEE_AMOUNT * 2;
         uint256 expectedChannelPoolFunds =
             (ADD_CHANNEL_MIN_FEES + (ADD_CHANNEL_MIN_FEES * 2)) - expectedProtocolPoolFees;
-        assertEq(expectedProtocolPoolFees, coreV2.PROTOCOL_POOL_FEES());
+        
+        assertEq(coreV2.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(expectedProtocolPoolFees , HOLDER_SPLIT));
+        assertEq(coreV2.WALLET_FEE_POOL(), WALLET_FEE_POOL + expectedProtocolPoolFees - BaseHelper.calcPercentage(expectedProtocolPoolFees , HOLDER_SPLIT));
         assertEq(expectedChannelPoolFunds, coreV2.CHANNEL_POOL_FUNDS());
     }
 

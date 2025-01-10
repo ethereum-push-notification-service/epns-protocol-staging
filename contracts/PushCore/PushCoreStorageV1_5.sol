@@ -20,7 +20,7 @@ contract PushCoreStorageV1_5 {
 
     address public pushChannelAdmin;
     address public governance;
-    address public daiAddress;
+    address public STAKING_CONTRACT; //TODO Re-Using Dai's address slot
     address public aDaiAddress;
     address public WETH_ADDRESS;
     address public pushCommunicator;
@@ -33,14 +33,14 @@ contract PushCoreStorageV1_5 {
     uint256 public channelsCount;
 
     ///  @notice Helper Variables for FSRatio Calculation | GROUPS = CHANNELS -> NOT IN USE
-    uint256 public groupNormalizedWeight;
-    uint256 public groupHistoricalZ;
+    uint256 public HOLDER_FEE_POOL;//TODO Re-Using groupNormalizedWeight slot
+    uint256 public WALLET_FEE_POOL;   //TODO Re-Using groupHistoricalZ slot
     uint256 public groupLastUpdate;
     uint256 public groupFairShareCount;
 
     /// @notice Necessary variables for Keeping track of Funds and Fees
     uint256 public CHANNEL_POOL_FUNDS;
-    uint256 public PROTOCOL_POOL_FEES;
+    uint256 public PROTOCOL_POOL_FEES; //unused storage
     uint256 public ADD_CHANNEL_MIN_FEES;
     uint256 public FEE_AMOUNT;
     uint256 public MIN_POOL_CONTRIBUTION;

@@ -97,7 +97,8 @@ contract UpdateChannelCCR is BaseCCRTest {
     function test_whenReceiveChecksPass() public whenReceiveFunctionIsCalledInCore {
         // it should emit event and create Channel
 
-        uint256 PROTOCOL_POOL_FEES = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         uint256 oldCounter = coreProxy.channelUpdateCounter(toWormholeFormat(actor.bob_channel_owner));
 
         vm.expectEmit(true, true, false, true);
@@ -116,7 +117,8 @@ contract UpdateChannelCCR is BaseCCRTest {
             uint256 channelUpdateBlock,
            ,
         ) = coreProxy.channelInfo(toWormholeFormat(actor.bob_channel_owner));
-        assertEq(coreProxy.PROTOCOL_POOL_FEES(), PROTOCOL_POOL_FEES + amount);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(amount , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL +  amount - BaseHelper.calcPercentage(amount , HOLDER_SPLIT));
         assertEq(coreProxy.channelUpdateCounter(toWormholeFormat(actor.bob_channel_owner)), oldCounter + 1);
         assertEq(channelUpdateBlock, block.number);
     }

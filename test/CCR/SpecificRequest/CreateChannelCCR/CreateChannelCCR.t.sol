@@ -123,7 +123,7 @@ contract CreateChannelCCR is BaseCCRTest {
     function test_whenReceiveChecksPass() public whenReceiveFunctionIsCalledInCore {
         // it should emit event and create Channel
 
-        (uint256 poolFunds, uint256 poolFees) = getPoolFundsAndFees(amount);
+        (uint256 poolFunds, uint256 HOLDER_FEE_POOL, uint256 WALLET_FEE_POOL) = getPoolFundsAndFees(amount);
 
         vm.expectEmit(true, true, false, true);
         emit ChannelCreated(
@@ -134,7 +134,8 @@ contract CreateChannelCCR is BaseCCRTest {
 
         receiveWormholeMessage(requestPayload);
         assertEq(coreProxy.CHANNEL_POOL_FUNDS(), poolFunds);
-        assertEq(coreProxy.PROTOCOL_POOL_FEES(), poolFees);
+        assertEq(coreProxy.HOLDER_FEE_POOL(),   HOLDER_FEE_POOL, "Holder pool");
+        assertEq(coreProxy.WALLET_FEE_POOL(),   WALLET_FEE_POOL,"Wallet Pool");
 
         (
             CoreTypes.ChannelType channelType,

@@ -12,6 +12,7 @@ import { CCRConfig } from "./CCRConfig.sol";
 import { IWormholeTransceiver } from "contracts/interfaces/wormhole/IWormholeTransceiver.sol";
 import { Vm } from "forge-std/Vm.sol";
 import { EPNS } from "contracts/token/EPNS.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract Helper is BasePushCommTest, CCRConfig {
     // Set Source and dest chains
@@ -51,6 +52,7 @@ contract Helper is BasePushCommTest, CCRConfig {
 
           changePrank(_addr);
           pushToken.approve(address(coreProxy), type(uint256).max);
+          pushToken.setHolderDelegation(address(coreProxy), true);
         }
     }
 
@@ -81,7 +83,8 @@ contract Helper is BasePushCommTest, CCRConfig {
         coreProxy.setWormholeRelayer(DestChain.WORMHOLE_RELAYER_DEST);
         coreProxy.setPushTokenAddress(address(pushToken));
         coreProxy.setRegisteredSender(SourceChain.SourceChainId, toWormholeFormat(address(commProxy)));
-
+        
+        getPushTokenOnfork(actor.admin, 1000e18, address(pushToken));
         getPushTokenOnfork(actor.bob_channel_owner, 1000e18, address(pushToken));
         getPushTokenOnfork(actor.charlie_channel_owner, 1000e18,address(pushToken));
         changePrank(actor.bob_channel_owner);
@@ -89,17 +92,7 @@ contract Helper is BasePushCommTest, CCRConfig {
         changePrank(actor.admin);
     }
 
-    function getPoolFundsAndFees(uint256 _amountDeposited)
-        internal
-        view
-        returns (uint256 CHANNEL_POOL_FUNDS, uint256 PROTOCOL_POOL_FEES)
-    {
-        uint256 poolFeeAmount = coreProxy.FEE_AMOUNT();
-        uint256 poolFundAmount = _amountDeposited - poolFeeAmount;
-        //store funds in pool_funds & pool_fees
-        CHANNEL_POOL_FUNDS = coreProxy.CHANNEL_POOL_FUNDS() + poolFundAmount;
-        PROTOCOL_POOL_FEES = coreProxy.PROTOCOL_POOL_FEES() + poolFeeAmount;
-    }
+
 
     function getSpecificPayload(
         CrossChainRequestTypes.CrossChainFunction typeOfReq,

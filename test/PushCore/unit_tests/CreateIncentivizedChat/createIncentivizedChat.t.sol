@@ -36,7 +36,8 @@ contract test_createIncentivizedChat is BasePushCoreTest {
 
         // it should update storage and emit event
         uint256 previousAmount = coreProxy.celebUserFunds(actor.charlie_channel_owner);
-        uint256 PROTOCOL_POOL_FEES = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
 
         changePrank(actor.bob_channel_owner);
 
@@ -50,7 +51,8 @@ contract test_createIncentivizedChat is BasePushCoreTest {
         assertEq(coreBalanceBefore + 100e18, pushToken.balanceOf(address(coreProxy)));
 
         assertEq(previousAmount + 100e18 - FEE_AMOUNT, coreProxy.celebUserFunds(actor.charlie_channel_owner));
-        assertEq(PROTOCOL_POOL_FEES + FEE_AMOUNT, coreProxy.PROTOCOL_POOL_FEES());
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(FEE_AMOUNT , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + FEE_AMOUNT - BaseHelper.calcPercentage(FEE_AMOUNT , HOLDER_SPLIT));
     }
 
     modifier whenCelebTriesToClaimTheTokens() {

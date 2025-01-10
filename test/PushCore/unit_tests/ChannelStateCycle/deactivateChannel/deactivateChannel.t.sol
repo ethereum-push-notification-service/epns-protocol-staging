@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 import { BasePushCoreTest } from "../../BasePushCoreTest.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
 import { CoreTypes } from "contracts/libraries/DataTypes.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract DeactivateChannel_Test is BasePushCoreTest {
     function setUp() public virtual override {
@@ -91,24 +92,24 @@ contract DeactivateChannel_Test is BasePushCoreTest {
 
     function test_FundsVariablesUpdation() public whenNotPaused {
         vm.startPrank(actor.bob_channel_owner);
-        uint256 actualPoolFeesBeforeDeactivation = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
 
         uint256 expectedRefundAmount = ADD_CHANNEL_MIN_FEES - FEE_AMOUNT - MIN_POOL_CONTRIBUTION;
         coreProxy.updateChannelState(0);
 
         uint256 actualChannelFundsAfterDeactivation = coreProxy.CHANNEL_POOL_FUNDS();
-        uint256 actualPoolFeesAfterDeactivation = coreProxy.PROTOCOL_POOL_FEES();
         uint256 actualChannelWeightAfterDeactivation = _getChannelWeight(actor.bob_channel_owner);
         uint256 actualChannelPoolContributionAfterDeactivation = _getChannelPoolContribution(actor.bob_channel_owner);
 
         uint256 expectedChannelFundsAfterDeactivation = ADD_CHANNEL_MIN_FEES - FEE_AMOUNT - expectedRefundAmount;
-        uint256 expectedPoolFeesAfterDeactivation = actualPoolFeesBeforeDeactivation;
         uint256 expectedChannelPoolContributionAfterDeactivation = MIN_POOL_CONTRIBUTION;
         uint256 expectedChannelWeightAfterDeactivation =
             (MIN_POOL_CONTRIBUTION * ADJUST_FOR_FLOAT) / (MIN_POOL_CONTRIBUTION);
 
         assertEq(actualChannelFundsAfterDeactivation, expectedChannelFundsAfterDeactivation);
-        assertEq(actualPoolFeesAfterDeactivation, expectedPoolFeesAfterDeactivation);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL);
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL); 
         assertEq(actualChannelWeightAfterDeactivation, expectedChannelWeightAfterDeactivation);
         assertEq(actualChannelPoolContributionAfterDeactivation, expectedChannelPoolContributionAfterDeactivation);
 

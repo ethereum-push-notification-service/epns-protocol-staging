@@ -121,7 +121,7 @@ contract ArbitraryRequesttsol is BaseCCRTest {
 
     function test_WhenDeliveryHashIsUsedAlready() external whenReceiveFunctionIsCalledInCore {
         // it should Revert
-
+        test_WhenAllChecksPasses();
         setUpDestChain();
 
         changePrank(DestChain.WORMHOLE_RELAYER_DEST);
@@ -139,7 +139,8 @@ contract ArbitraryRequesttsol is BaseCCRTest {
         test_WhenAllChecksPasses();
 
         setUpDestChain();
-        uint256 PROTOCOL_POOL_FEES = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         uint256 arbitraryFees = coreProxy.arbitraryReqFees(actor.charlie_channel_owner);
         changePrank(DestChain.WORMHOLE_RELAYER_DEST);
 
@@ -153,7 +154,8 @@ contract ArbitraryRequesttsol is BaseCCRTest {
         uint256 feeAmount = BaseHelper.calcPercentage(amount, percentage);
 
         // Update states based on Fee Percentage calculation
-        assertEq(coreProxy.PROTOCOL_POOL_FEES(), PROTOCOL_POOL_FEES + feeAmount);
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(feeAmount , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + feeAmount - BaseHelper.calcPercentage(feeAmount , HOLDER_SPLIT));
         assertEq(coreProxy.arbitraryReqFees(actor.charlie_channel_owner), arbitraryFees + amount - feeAmount);
     }
 

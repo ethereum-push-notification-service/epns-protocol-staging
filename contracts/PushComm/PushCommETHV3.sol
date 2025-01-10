@@ -12,7 +12,7 @@ pragma solidity ^0.8.20;
  * @dev   Some imperative functionalities that the Push Communicator Protocol allows
  *        are Subscribing to a particular channel, Unsubscribing a channel, Sending
  *        Notifications to a particular recipient or all subscribers of a Channel etc.
- *
+ * @Custom:security-contact https://push.org/
  */
 import { PushCommEthStorageV2 } from "./PushCommEthStorageV2.sol";
 import { Errors } from "../libraries/Errors.sol";
@@ -78,11 +78,11 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     ***************************** */
 
     function verifyChannelAlias(string memory _channelAddress) external {
-        emit ChannelAlias(chainName, chainID, msg.sender, _channelAddress);
+        emit ChannelAlias(chainName, block.chainid, msg.sender, _channelAddress);
     }
 
     function removeChannelAlias(string memory _channelAddress) external {
-        emit RemoveChannelAlias(chainName, chainID, msg.sender, _channelAddress);
+        emit RemoveChannelAlias(chainName, block.chainid, msg.sender, _channelAddress);
     }
 
     // function completeMigration() external onlyPushChannelAdmin {
@@ -123,13 +123,12 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     }
 
     /// @inheritdoc  IPushCommV3
-    function subscribe(address _channel) external returns (bool) {
+    function subscribe(address _channel) external {
         _subscribe(_channel, msg.sender);
-        return true;
     }
 
     /// @inheritdoc  IPushCommV3
-    function batchSubscribe(address[] calldata _channelList) external returns (bool) {
+    function batchSubscribe(address[] calldata _channelList) external {
         uint256 channelListLength = _channelList.length;
         for (uint256 i = 0; i < channelListLength;) {
             _subscribe(_channelList[i], msg.sender);
@@ -137,7 +136,6 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
                 i++;
             }
         }
-        return true;
     }
 
     /**
@@ -213,9 +211,8 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     }
 
     /// @inheritdoc  IPushCommV3
-    function subscribeViaCore(address _channel, address _user) external onlyPushCore returns (bool) {
+    function subscribeViaCore(address _channel, address _user) external onlyPushCore {
         _subscribe(_channel, _user);
-        return true;
     }
 
     /* *****************************
@@ -225,14 +222,13 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     ***************************** */
 
     /// @inheritdoc  IPushCommV3
-    function unsubscribe(address _channel) external returns (bool) {
+    function unsubscribe(address _channel) external {
         // Call actual unsubscribe
         _unsubscribe(_channel, msg.sender);
-        return true;
     }
 
     /// @inheritdoc  IPushCommV3
-    function batchUnsubscribe(address[] calldata _channelList) external returns (bool) {
+    function batchUnsubscribe(address[] calldata _channelList) external {
         uint256 channelListLength = _channelList.length;
         for (uint256 i = 0; i < channelListLength;) {
             _unsubscribe(_channelList[i], msg.sender);
@@ -240,7 +236,6 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
                 i++;
             }
         }
-        return true;
     }
 
     /**
@@ -314,9 +309,8 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     }
 
     /// @inheritdoc  IPushCommV3
-    function unSubscribeViaCore(address _channel, address _user) external onlyPushCore returns (bool) {
+    function unSubscribeViaCore(address _channel, address _user) external onlyPushCore {
         _unsubscribe(_channel, _user);
-        return true;
     }
 
     /**
@@ -354,6 +348,7 @@ contract PushCommETHV3 is Initializable, PushCommEthStorageV2, IPushCommV3 {
     /// @inheritdoc  IPushCommV3
     function removeDelegate(address _delegate) external {
         delegatedNotificationSenders[msg.sender][_delegate] = false;
+        _unsubscribe(msg.sender, _delegate);
         emit RemoveDelegate(msg.sender, _delegate);
     }
 

@@ -2,6 +2,8 @@ pragma solidity ^0.8.0;
 
 import { BasePushCoreTest } from "../BasePushCoreTest.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
+import { GenericTypes } from "contracts/libraries/DataTypes.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract CoreAdminActions_Test is BasePushCoreTest {
     function setUp() public virtual override {
@@ -146,5 +148,26 @@ contract CoreAdminActions_Test is BasePushCoreTest {
         assertEq(coreProxy.ADD_CHANNEL_MIN_FEES(), minFeeRequired);
         coreProxy.setMinChannelCreationFees(minFeeRequired + 10);
         assertEq(coreProxy.ADD_CHANNEL_MIN_FEES(), minFeeRequired + 10);
+    }
+
+    function test_whenSplitsFeePool(GenericTypes.Percentage memory  _percentage) external {
+        _percentage.percentageNumber = bound(_percentage.percentageNumber, 1, 100);
+        _percentage.decimalPlaces = bound(_percentage.decimalPlaces, 0, 4);
+        changePrank(actor.admin);
+        coreProxy.splitFeePool(_percentage);
+        (uint percentNumber, uint decimals) = coreProxy.SPLIT_PERCENTAGE_FOR_HOLDER();
+
+        assertEq(percentNumber, _percentage.percentageNumber);
+        assertEq(decimals, _percentage.decimalPlaces);
+
+        uint FeesToAdd = 1000 ether;
+
+        uint expectedHolderFees = coreProxy.HOLDER_FEE_POOL() + BaseHelper.calcPercentage(FeesToAdd, _percentage); 
+        uint expectedWalletFees = coreProxy.WALLET_FEE_POOL() + FeesToAdd - expectedHolderFees; 
+
+        coreProxy.addPoolFees(FeesToAdd);
+        
+        assertEq(coreProxy.HOLDER_FEE_POOL(),expectedHolderFees );
+        assertEq(coreProxy.WALLET_FEE_POOL(),expectedWalletFees );
     }
 }

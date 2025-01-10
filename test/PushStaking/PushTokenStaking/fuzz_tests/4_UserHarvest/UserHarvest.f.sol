@@ -1,12 +1,12 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import { BaseFuzzStaking } from "../BaseFuzzStaking.f.sol";
+import { BasePushTokenStaking } from "../../BasePushTokenStaking.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
 
-contract UserHarvest_test is BaseFuzzStaking {
+contract UserHarvest_test is BasePushTokenStaking {
     function setUp() public virtual override {
-        BaseFuzzStaking.setUp();
+        BasePushTokenStaking.setUp();
     }
 
     // actor.bob_channel_owner Stakes at EPOCH 1 and Harvests alone- Should get all rewards
@@ -22,8 +22,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * _passEpoch);
         harvest(actor.bob_channel_owner);
         daoHarvest(actor.admin, _passEpoch - 1);
-        uint256 adminClaimed = coreProxy.usersRewardsClaimed(address(coreProxy));
-        uint256 claimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 adminClaimed = pushStaking.usersRewardsClaimed(address(coreProxy));
+        uint256 claimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
 
         assertApproxEqAbs(claimed, _fee * 1e18, (adminClaimed) * 1e18);
     }
@@ -40,8 +40,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * (_passEpoch + 1));
         harvest(actor.bob_channel_owner);
         daoHarvest(actor.admin, _passEpoch);
-        uint256 adminClaimed = coreProxy.usersRewardsClaimed(address(coreProxy));
-        uint256 claimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 adminClaimed = pushStaking.usersRewardsClaimed(address(coreProxy));
+        uint256 claimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         assertApproxEqAbs(claimed, _fee * 1e18, adminClaimed + 1e18);
     }
 
@@ -56,7 +56,7 @@ contract UserHarvest_test is BaseFuzzStaking {
         stake(actor.bob_channel_owner, _amount);
         harvest(actor.bob_channel_owner);
 
-        assertEq(coreProxy.usersRewardsClaimed(actor.bob_channel_owner), 0);
+        assertEq(pushStaking.usersRewardsClaimed(actor.bob_channel_owner), 0);
     }
 
     //   bob stakes at epoch 2 and claims at epoch 9 using harvestAll()",
@@ -73,9 +73,9 @@ contract UserHarvest_test is BaseFuzzStaking {
         daoHarvest(actor.admin, _passEpoch + 8);
 
         assertApproxEqAbs(
-            coreProxy.usersRewardsClaimed(actor.bob_channel_owner),
+            pushStaking.usersRewardsClaimed(actor.bob_channel_owner),
             _fee * 1e18,
-            (coreProxy.usersRewardsClaimed(address(coreProxy)) + 5) * 1e18
+            (pushStaking.usersRewardsClaimed(address(coreProxy)) + 5) * 1e18
         );
     }
 
@@ -95,8 +95,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * _passEpoch);
         harvest(actor.bob_channel_owner);
         harvest(actor.alice_channel_owner);
-        uint256 bobClaimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 aliceClaimed = coreProxy.usersRewardsClaimed(actor.alice_channel_owner);
+        uint256 bobClaimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 aliceClaimed = pushStaking.usersRewardsClaimed(actor.alice_channel_owner);
         assertEq(bobClaimed, aliceClaimed);
     }
 
@@ -128,8 +128,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         harvest(actor.alice_channel_owner);
 
         assertEq(
-            coreProxy.usersRewardsClaimed(actor.bob_channel_owner),
-            coreProxy.usersRewardsClaimed(actor.alice_channel_owner)
+            pushStaking.usersRewardsClaimed(actor.bob_channel_owner),
+            pushStaking.usersRewardsClaimed(actor.alice_channel_owner)
         );
     }
 
@@ -152,10 +152,10 @@ contract UserHarvest_test is BaseFuzzStaking {
         harvest(actor.alice_channel_owner);
         harvest(actor.charlie_channel_owner);
         harvest(actor.tony_channel_owner);
-        uint256 bobClaimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 aliceClaimed = coreProxy.usersRewardsClaimed(actor.alice_channel_owner);
-        uint256 charlieclaimed = coreProxy.usersRewardsClaimed(actor.charlie_channel_owner);
-        uint256 tonyclaimed = coreProxy.usersRewardsClaimed(actor.tony_channel_owner);
+        uint256 bobClaimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 aliceClaimed = pushStaking.usersRewardsClaimed(actor.alice_channel_owner);
+        uint256 charlieclaimed = pushStaking.usersRewardsClaimed(actor.charlie_channel_owner);
+        uint256 tonyclaimed = pushStaking.usersRewardsClaimed(actor.tony_channel_owner);
 
         assertTrue(charlieclaimed == tonyclaimed && bobClaimed == aliceClaimed && bobClaimed == charlieclaimed);
     }
@@ -181,10 +181,10 @@ contract UserHarvest_test is BaseFuzzStaking {
         harvest(actor.bob_channel_owner);
         harvest(actor.alice_channel_owner);
         harvest(actor.charlie_channel_owner);
-        uint256 bobClaimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 aliceClaimed = coreProxy.usersRewardsClaimed(actor.alice_channel_owner);
-        uint256 charlieclaimed = coreProxy.usersRewardsClaimed(actor.charlie_channel_owner);
-        uint256 tonyclaimed = coreProxy.usersRewardsClaimed(actor.tony_channel_owner);
+        uint256 bobClaimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 aliceClaimed = pushStaking.usersRewardsClaimed(actor.alice_channel_owner);
+        uint256 charlieclaimed = pushStaking.usersRewardsClaimed(actor.charlie_channel_owner);
+        uint256 tonyclaimed = pushStaking.usersRewardsClaimed(actor.tony_channel_owner);
 
         assertTrue(tonyclaimed > charlieclaimed && charlieclaimed > aliceClaimed && aliceClaimed > bobClaimed);
     }
@@ -216,10 +216,10 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * (_passEpoch + 12));
 
         harvest(actor.charlie_channel_owner);
-        uint256 bobClaimed = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 aliceClaimed = coreProxy.usersRewardsClaimed(actor.alice_channel_owner);
-        uint256 charlieclaimed = coreProxy.usersRewardsClaimed(actor.charlie_channel_owner);
-        uint256 tonyclaimed = coreProxy.usersRewardsClaimed(actor.tony_channel_owner);
+        uint256 bobClaimed = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 aliceClaimed = pushStaking.usersRewardsClaimed(actor.alice_channel_owner);
+        uint256 charlieclaimed = pushStaking.usersRewardsClaimed(actor.charlie_channel_owner);
+        uint256 tonyclaimed = pushStaking.usersRewardsClaimed(actor.tony_channel_owner);
 
         assertEq(charlieclaimed, tonyclaimed, "charlie and tony");
         assertEq(bobClaimed, aliceClaimed, "bob and alice");
@@ -237,8 +237,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * _passEpoch);
         harvestPaginated(actor.bob_channel_owner, _passEpoch - 1);
         daoHarvest(actor.admin, _passEpoch - 1);
-        uint256 rewardsAd = coreProxy.usersRewardsClaimed(address(coreProxy));
-        uint256 rewardsBob = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsAd = pushStaking.usersRewardsClaimed(address(coreProxy));
+        uint256 rewardsBob = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         assertApproxEqAbs(_fee * 1e18, rewardsBob, rewardsAd * 1e18);
     }
 
@@ -267,8 +267,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         stake(actor.bob_channel_owner, _amount);
         roll(epochDuration * _passEpoch);
         harvestPaginated(actor.bob_channel_owner, _passEpoch - 1);
-        (,,, uint256 _lastClaimedBlock) = coreProxy.userFeesInfo(actor.bob_channel_owner);
-        uint256 _nextFromEpoch = coreProxy.lastEpochRelative(genesisEpoch, _lastClaimedBlock);
+        (,,, uint256 _lastClaimedBlock) = pushStaking.userFeesInfo(actor.bob_channel_owner);
+        uint256 _nextFromEpoch = pushStaking.lastEpochRelative(genesisEpoch, _lastClaimedBlock);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.InvalidArg_LessThanExpected.selector, _nextFromEpoch, _passEpoch - 1)
         );
@@ -293,8 +293,8 @@ contract UserHarvest_test is BaseFuzzStaking {
 
         harvest(actor.bob_channel_owner);
         daoHarvest(actor.admin, _passEpoch - 1);
-        uint256 rewardsB = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 rewardsA = coreProxy.usersRewardsClaimed(address(coreProxy));
+        uint256 rewardsB = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsA = pushStaking.usersRewardsClaimed(address(coreProxy));
         uint256 expected = _fee * 3e18 - rewardsA;
         assertApproxEqAbs(rewardsB, expected, _fee * 1e18);
     }
@@ -319,8 +319,8 @@ contract UserHarvest_test is BaseFuzzStaking {
         harvestPaginated(actor.bob_channel_owner, _passEpoch + 3);
 
         daoHarvest(actor.admin, _passEpoch + 3);
-        uint256 rewardsB = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 rewardsA = coreProxy.usersRewardsClaimed(address(coreProxy));
+        uint256 rewardsB = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsA = pushStaking.usersRewardsClaimed(address(coreProxy));
         uint256 expected = _fee * 3e18 - rewardsA;
         assertApproxEqAbs(rewardsB, expected, 5 ether);
     }
@@ -348,9 +348,9 @@ contract UserHarvest_test is BaseFuzzStaking {
         harvestPaginated(actor.bob_channel_owner, _passEpoch + 2);
         harvestPaginated(actor.bob_channel_owner, _passEpoch + 3);
         daoHarvest(actor.admin, _passEpoch + 3);
-        uint256 rewardsB = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 rewardsA = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
-        uint256 rewardsAd = coreProxy.usersRewardsClaimed(address(coreProxy));
+        uint256 rewardsB = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsA = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsAd = pushStaking.usersRewardsClaimed(address(coreProxy));
         uint256 expected = (_fee * 3e18 - rewardsAd) / 2;
         assertApproxEqAbs(rewardsB, expected, 5 ether);
         assertApproxEqAbs(rewardsA, expected, 5 ether);
@@ -370,10 +370,10 @@ contract UserHarvest_test is BaseFuzzStaking {
         roll(epochDuration * _passEpoch);
 
         harvest(actor.bob_channel_owner);
-        uint256 rewardsBef = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsBef = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         roll(epochDuration * _passEpoch + 2);
         harvest(actor.bob_channel_owner);
-        uint256 rewardsAf = coreProxy.usersRewardsClaimed(actor.bob_channel_owner);
+        uint256 rewardsAf = pushStaking.usersRewardsClaimed(actor.bob_channel_owner);
         assertEq(rewardsAf, rewardsBef);
     }
 }

@@ -1,0 +1,11 @@
+ChannelDelegation.t.sol
+├── when channel adds delegate
+│   ├── when delegate Is not added
+│   │   └── it should add the delagate
+│   └── when delegate is already added
+│       └── it should not change anything
+└── when channel removes delegate
+    ├── when delegate Is added
+    │   └── it should remove the delagate
+    └── when delegate is already removed
+        └── it should not change anything

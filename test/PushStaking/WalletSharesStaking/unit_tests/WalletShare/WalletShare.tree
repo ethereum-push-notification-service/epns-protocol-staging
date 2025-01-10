@@ -1,0 +1,17 @@
+#when inititalize 
+## it should assign foundation a constant value
+#when governance adds shares to a wallet 
+##when governance adds to a single wallet
+### it should update the state Variables correctly
+##when governance adds to another wallet
+### it should update variables, without disturbing the previous allotment
+#when governance removes wallet
+##it should allot the shares to foundation
+#when governance adds a very small percentage
+## it should add negligible percentage too
+# when governance increase shares
+## it should increase the shares 
+# when governance decreases shares
+## it should decrease and allot those to the foundation
+
+

@@ -2,6 +2,7 @@ pragma solidity ^0.8.20;
 
 import { BasePushCoreTest } from "../../BasePushCoreTest.t.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract BlockChannel_Test is BasePushCoreTest {
     bytes32 bobBytes; 
@@ -96,19 +97,19 @@ contract BlockChannel_Test is BasePushCoreTest {
 
     function test_FundsVariablesUpdation() public whenNotPaused whenCallerIsAdmin {
         uint256 poolContributionBeforeBlocked = _getChannelPoolContribution(actor.bob_channel_owner);
-        uint256 poolFeesBeforeBlocked = coreProxy.PROTOCOL_POOL_FEES();
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         uint256 poolFundsBeforeBlocked = coreProxy.CHANNEL_POOL_FUNDS();
 
         vm.prank(actor.admin);
         coreProxy.blockChannel(bobBytes);
         uint256 actualChannelFundsAfterBlocked = coreProxy.CHANNEL_POOL_FUNDS();
-        uint256 actualPoolFeesAfterBlocked = coreProxy.PROTOCOL_POOL_FEES();
 
         uint256 expectedPoolContributionAfterBlocked = poolContributionBeforeBlocked - MIN_POOL_CONTRIBUTION;
         uint256 expectedChannelFundsAfterBlocked = poolFundsBeforeBlocked - expectedPoolContributionAfterBlocked;
-        uint256 expectedPoolFeesAfterBlocked = poolFeesBeforeBlocked + expectedPoolContributionAfterBlocked;
 
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(expectedPoolContributionAfterBlocked , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + expectedPoolContributionAfterBlocked - BaseHelper.calcPercentage(expectedPoolContributionAfterBlocked , HOLDER_SPLIT));
         assertEq(actualChannelFundsAfterBlocked, expectedChannelFundsAfterBlocked);
-        assertEq(actualPoolFeesAfterBlocked, expectedPoolFeesAfterBlocked);
     }
 }

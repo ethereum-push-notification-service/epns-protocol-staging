@@ -12,7 +12,7 @@ pragma solidity ^0.8.20;
  * @dev   Some imperative functionalities that the Push Communicator Protocol allows
  *        are Subscribing to a particular channel, Unsubscribing a channel, Sending
  *        Notifications to a particular recipient or all subscribers of a Channel etc.
- *
+ * @Custom:security-contact https://immunefi.com/bug-bounty/pushprotocol/information/
  */
 import { PushCommStorageV2 } from "./PushCommStorageV2.sol";
 import { Errors } from "../libraries/Errors.sol";
@@ -84,7 +84,7 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
     ***************************** */
 
     function verifyChannelAlias(string memory _channelAddress) external {
-        emit ChannelAlias(chainName, chainID, msg.sender, _channelAddress);
+        emit ChannelAlias(chainName, block.chainid, msg.sender, _channelAddress);
     }
 
 
@@ -130,13 +130,12 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
     }
 
     /// @inheritdoc IPushCommV3
-    function subscribe(address _channel) external returns (bool) {
+    function subscribe(address _channel) external {
         _subscribe(_channel, msg.sender);
-        return true;
     }
 
     /// @inheritdoc IPushCommV3
-    function batchSubscribe(address[] calldata _channelList) external returns (bool) {
+    function batchSubscribe(address[] calldata _channelList) external {
         uint256 channelListLength = _channelList.length;
         for (uint256 i = 0; i < channelListLength;) {
             _subscribe(_channelList[i], msg.sender);
@@ -144,7 +143,6 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
                 i++;
             }
         }
-        return true;
     }
 
     /**
@@ -220,9 +218,8 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
     }
 
     /// @inheritdoc IPushCommV3
-    function subscribeViaCore(address _channel, address _user) external onlyPushCore returns (bool) {
+    function subscribeViaCore(address _channel, address _user) external onlyPushCore {
         _subscribe(_channel, _user);
-        return true;
     }
 
     /* *****************************
@@ -232,14 +229,13 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
     ***************************** */
 
     /// @inheritdoc IPushCommV3
-    function unsubscribe(address _channel) external returns (bool) {
+    function unsubscribe(address _channel) external {
         // Call actual unsubscribe
         _unsubscribe(_channel, msg.sender);
-        return true;
     }
 
     /// @inheritdoc IPushCommV3
-    function batchUnsubscribe(address[] calldata _channelList) external returns (bool) {
+    function batchUnsubscribe(address[] calldata _channelList) external {
         uint256 channelListLength = _channelList.length;
         for (uint256 i = 0; i < channelListLength;) {
             _unsubscribe(_channelList[i], msg.sender);
@@ -247,7 +243,6 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
                 i++;
             }
         }
-        return true;
     }
 
     /**
@@ -321,9 +316,8 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
     }
 
     /// @inheritdoc IPushCommV3
-    function unSubscribeViaCore(address _channel, address _user) external onlyPushCore returns (bool) {
+    function unSubscribeViaCore(address _channel, address _user) external onlyPushCore {
         _unsubscribe(_channel, _user);
-        return true;
     }
 
     /**
@@ -353,15 +347,20 @@ contract PushCommV3 is Initializable, PushCommStorageV2, IPushCommV3, PausableUp
 
     /// @inheritdoc IPushCommV3
     function addDelegate(address _delegate) external {
-        delegatedNotificationSenders[msg.sender][_delegate] = true;
-        _subscribe(msg.sender, _delegate);
-        emit AddDelegate(msg.sender, _delegate);
+        if(delegatedNotificationSenders[msg.sender][_delegate] == false){
+            delegatedNotificationSenders[msg.sender][_delegate] = true;
+            _subscribe(msg.sender, _delegate);
+            emit AddDelegate(msg.sender, _delegate);
+        }
     }
 
     /// @inheritdoc IPushCommV3
     function removeDelegate(address _delegate) external {
-        delegatedNotificationSenders[msg.sender][_delegate] = false;
-        emit RemoveDelegate(msg.sender, _delegate);
+        if(delegatedNotificationSenders[msg.sender][_delegate] == true){
+            delegatedNotificationSenders[msg.sender][_delegate] = false;
+            _unsubscribe(msg.sender, _delegate);
+            emit RemoveDelegate(msg.sender, _delegate);
+        }
     }
 
     /**

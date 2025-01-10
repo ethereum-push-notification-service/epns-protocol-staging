@@ -67,11 +67,11 @@ interface IPushCommV3 {
     ///  @dev   Subscribes the caller of the function to a particular Channel
     ///         - Takes into Consideration the "msg.sender"
     ///  @param _channel address of the channel that the user is subscribing to
-    function subscribe(address _channel) external returns (bool);
+    function subscribe(address _channel) external;
 
     /// @notice Allows users to subscribe a List of Channels at once
     /// @param _channelList array of addresses of the channels that the user wishes to Subscribe
-    function batchSubscribe(address[] calldata _channelList) external returns (bool);
+    function batchSubscribe(address[] calldata _channelList) external;
 
     /// @notice Subscribe Function through Meta TX
     /// @dev Takes into Consideration the Sign of the User
@@ -98,7 +98,7 @@ interface IPushCommV3 {
     /// @param _channel address of the channel that the user is subscribing to
     /// @param _user address of the Subscriber of a Channel
 
-    function subscribeViaCore(address _channel, address _user) external returns (bool);
+    function subscribeViaCore(address _channel, address _user) external;
 
     /// @notice Allows PushCore contract to call the Base UnSubscribe function whenever a User Destroys his/her
     /// TimeBound Channel.
@@ -110,19 +110,19 @@ interface IPushCommV3 {
     /// @param _channel address of the channel being unsubscribed
     /// @param _user address of the UnSubscriber of a Channel
 
-    function unSubscribeViaCore(address _channel, address _user) external returns (bool);
+    function unSubscribeViaCore(address _channel, address _user) external;
 
     /// @notice External Unsubcribe Function that allows users to directly unsubscribe from a particular channel
     /// @dev UnSubscribes the caller of the function from the particular Channel.
     ///    Takes into Consideration the "msg.sender"
     /// @param _channel address of the channel that the user is unsubscribing to
 
-    function unsubscribe(address _channel) external returns (bool);
+    function unsubscribe(address _channel) external;
 
     /// @notice Allows users to unsubscribe from a List of Channels at once
     /// @param _channelList array of addresses of the channels that the user wishes to Unsubscribe
 
-    function batchUnsubscribe(address[] calldata _channelList) external returns (bool);
+    function batchUnsubscribe(address[] calldata _channelList) external;
 
     /// @notice Unsubscribe Function through Meta TX
     /// @dev Takes into Consideration the Signer of the transactioner

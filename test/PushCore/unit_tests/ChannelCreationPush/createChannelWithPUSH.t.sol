@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 import { BasePushCoreTest } from "../BasePushCoreTest.t.sol";
 import { CoreTypes } from "contracts/libraries/DataTypes.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
+import { BaseHelper } from "contracts/libraries/BaseHelper.sol";
 
 contract CreateChannelWithPUSH_Test is BasePushCoreTest {
     function setUp() public virtual override {
@@ -77,6 +78,7 @@ contract CreateChannelWithPUSH_Test is BasePushCoreTest {
     }
 
     function test_CreateChannel() public whenNotPaused {
+        (uint256 CHANNEL_POOL_FUNDS, uint256 HOLDER_FEE_POOL,uint256 WALLET_FEE_POOL) = getPoolFundsAndFees(ADD_CHANNEL_MIN_FEES);
         vm.startPrank(actor.bob_channel_owner);
         uint256 channelsCountBefore = coreProxy.channelsCount();
 
@@ -84,13 +86,11 @@ contract CreateChannelWithPUSH_Test is BasePushCoreTest {
             CoreTypes.ChannelType.InterestBearingOpen, _testChannelIdentity, ADD_CHANNEL_MIN_FEES, 0
         );
 
-        uint256 expectedPoolContribution = ADD_CHANNEL_MIN_FEES - FEE_AMOUNT;
         uint256 expectedBlockNumber = block.number;
         uint256 expectedChannelsCount = channelsCountBefore + 1;
         uint8 expectedChannelState = 1;
-        uint256 expectedChannelWeight = (expectedPoolContribution * ADJUST_FOR_FLOAT) / MIN_POOL_CONTRIBUTION;
+        uint256 expectedChannelWeight = (CHANNEL_POOL_FUNDS * ADJUST_FOR_FLOAT) / MIN_POOL_CONTRIBUTION;
         uint256 expectedChannelExpiryTime = 0;
-        uint256 expectedProtocolPoolFees = FEE_AMOUNT;
 
         (
             ,
@@ -106,20 +106,23 @@ contract CreateChannelWithPUSH_Test is BasePushCoreTest {
             uint256 actualExpiryTime
         ) = coreProxy.channelInfo(channelCreators.bob_channel_owner_Bytes32);
 
-        assertEq(expectedPoolContribution, coreProxy.CHANNEL_POOL_FUNDS());
+        assertEq(CHANNEL_POOL_FUNDS, coreProxy.CHANNEL_POOL_FUNDS());
         assertEq(expectedChannelsCount, coreProxy.channelsCount());
         assertEq(expectedChannelState, actualChannelState);
-        assertEq(expectedPoolContribution, actualPoolContribution);
+        assertEq(CHANNEL_POOL_FUNDS, actualPoolContribution);
         assertEq(expectedBlockNumber, actualChannelStartBlock);
         assertEq(expectedBlockNumber, actualChannelUpdateBlock);
         assertEq(expectedChannelWeight, actualChannelWeight);
         assertEq(expectedChannelExpiryTime, actualExpiryTime);
-        assertEq(expectedProtocolPoolFees, coreProxy.PROTOCOL_POOL_FEES());
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL );
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL );
 
         vm.stopPrank();
     }
 
     function test_ProtocolPoolFeesCorrectForMultipleChannelsCreation() public whenNotPaused {
+        uint256 HOLDER_FEE_POOL = coreProxy.HOLDER_FEE_POOL();
+        uint256 WALLET_FEE_POOL = coreProxy.WALLET_FEE_POOL();
         vm.prank(actor.bob_channel_owner);
         coreProxy.createChannelWithPUSH(
             CoreTypes.ChannelType.InterestBearingOpen, _testChannelIdentity, ADD_CHANNEL_MIN_FEES, 0
@@ -133,7 +136,8 @@ contract CreateChannelWithPUSH_Test is BasePushCoreTest {
         uint256 expectedProtocolPoolFees = FEE_AMOUNT * 2;
         uint256 expectedChannelPoolFunds =
             (ADD_CHANNEL_MIN_FEES + (ADD_CHANNEL_MIN_FEES * 2)) - expectedProtocolPoolFees;
-        assertEq(expectedProtocolPoolFees, coreProxy.PROTOCOL_POOL_FEES());
+        assertEq(coreProxy.HOLDER_FEE_POOL(), HOLDER_FEE_POOL + BaseHelper.calcPercentage(expectedProtocolPoolFees , HOLDER_SPLIT));
+        assertEq(coreProxy.WALLET_FEE_POOL(), WALLET_FEE_POOL + expectedProtocolPoolFees - BaseHelper.calcPercentage(expectedProtocolPoolFees , HOLDER_SPLIT));
         assertEq(expectedChannelPoolFunds, coreProxy.CHANNEL_POOL_FUNDS());
     }
 

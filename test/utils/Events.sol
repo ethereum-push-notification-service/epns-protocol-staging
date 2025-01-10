@@ -66,4 +66,13 @@ abstract contract PushTokenEvents {
     event NewMinter(address indexed newMinter);
 }
 
-abstract contract Events is CoreEvents, CommEvents, ProxyEvents, PushTokenEvents, MigrationEvents { }
+abstract contract WalletStakingEvents {
+    event Staked(address indexed user, uint256 indexed amountStaked);
+    event Unstaked(address indexed user, uint256 indexed amountUnstaked);
+    event RewardsHarvested(address indexed user, uint256 indexed rewardAmount, uint256 fromEpoch, uint256 tillEpoch);
+    event NewSharesIssued(address indexed Wallet, uint256 indexed Shares);
+    event SharesRemoved(address indexed Wallet, uint256 indexed Shares);
+    event SharesDecreased(address indexed Wallet, uint256 indexed oldShares, uint256 newShares);
+}
+
+abstract contract Events is CoreEvents, CommEvents, ProxyEvents, PushTokenEvents, MigrationEvents, WalletStakingEvents { }
