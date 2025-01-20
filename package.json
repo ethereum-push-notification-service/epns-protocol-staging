@@ -18,7 +18,8 @@
     "watch": "node scripts/watch.js",
     "accounts": "hardhat accounts",
     "balance": "hardhat balance",
-    "send": "hardhat send"
+    "send": "hardhat send",
+    "cz": "cz"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -41,6 +42,8 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-verify": "^2.0.4",
+    "commitizen": "^4.3.1",
+    "cz-git": "^1.11.0",
     "hardhat-contract-sizer": "^2.8.0",
     "moment": "^2.29.1",
     "prettier": "^2.3.2",

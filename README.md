@@ -125,17 +125,92 @@ cd push-smart-contracts
 
 3. Install the dependencies:
 ```sh
-npm install
+forge install
 ```
 
-### 🧪 Running Tests
+### 🧪 Build the project:
 ```sh
-npx hardhat test 
+forge build 
 ```
-OR
+### Testing with Foundry
+
+#### Prerequisites
+Ensure you have Foundry installed. If not, install it via:
 ```sh
-forge test 
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
 ```
+### Running Tests
+
+1. Running all tests:
+```sh
+forge test
+```
+
+2. Run specific tests:
+```sh
+forge test --match-contract <ContractName>
+forge test --match-test <TestFunctionName>
+```
+
+3. Enable detailed output:
+```sh
+forge test -vvvv
+```
+
+### Example Test File Structure
+Tests should be placed in the test/ directory and follow this structure:
+```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import {Test} from "forge-std/Test.sol";
+import {Your contract name} from "../src/YourContract.sol";
+
+contract YourContractTest is Test {
+    YourContract yourContract;
+
+    function setUp() public {
+        yourContract = new YourContract();
+    }
+
+    function testExample() public {
+        assertEq(yourContract.someFunction(), expectedValue);
+    }
+}
+```
+
+### Makefile Integration
+
+To streamline development, we recommend using a Makefile for common tasks:
+
+```
+.PHONY: install build test clean
+
+install:
+	@forge install
+
+build:
+	@forge build
+
+test:
+	@forge test -vvvv
+
+clean:
+	@rm -rf out cache
+```
+
+### Run commands like this:
+
+```
+make install  # Install dependencies
+make build    # Build contracts
+make test     # Run tests with verbose output
+make clean    # Clean build artifacts
+```
+
+
 ---
 
 ## Resources
